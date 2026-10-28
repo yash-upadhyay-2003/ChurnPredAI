@@ -1,0 +1,15 @@
+# Customer Churn Prediction - Deployment Dependencies
+# Pinned scikit-learn and joblib versions match the serialized model artifact
+scikit-learn==1.9.1
+joblib==1.6.0
+pandas>=2.0.0
+numpy>=2.0.0
+
+# FastAPI Backend & Server
+fastapi>=0.110.0
+uvicorn>=0.28.0
+pydantic>=2.0.0
+
+# Streamlit Frontend & HTTP Client
+streamlit>=1.30.0
+requests>=2.31.0

@@ -1,0 +1,66 @@
+{
+  "selected_model": "Random Forest \u2014 selected features",
+  "scikit_learn_version": "1.9.1",
+  "joblib_version": "1.6.0",
+  "target_column": "Churned",
+  "target_mapping": {
+    "no": 0,
+    "yes": 1
+  },
+  "dropped_columns": [
+    "AccountID",
+    "Country",
+    "Churned",
+    "HasRenewed"
+  ],
+  "raw_input_columns": [
+    "Territory",
+    "DeviceType",
+    "Promotion",
+    "PlanType",
+    "BaseFee",
+    "AdditionalFeatureSpend",
+    "NumberOfPenalties",
+    "CurrentPeriodUsage",
+    "PriorPeriodUsage",
+    "ServiceRating",
+    "ServiceTickets",
+    "StartMonth",
+    "StartWeek",
+    "CustomerTenure"
+  ],
+  "engineered_features": {
+    "TotalCustomerSpend": "BaseFee + AdditionalFeatureSpend",
+    "UsageDifference": "CurrentPeriodUsage - PriorPeriodUsage",
+    "AdditionalSpendRatio": "AdditionalFeatureSpend / (BaseFee + 1)",
+    "Penalties_per_Tenure": "NumberOfPenalties / (CustomerTenure + 1)",
+    "Tickets_per_Tenure": "ServiceTickets / (CustomerTenure + 1)"
+  },
+  "model_input_columns_after_feature_engineering": [
+    "Territory",
+    "DeviceType",
+    "Promotion",
+    "PlanType",
+    "BaseFee",
+    "AdditionalFeatureSpend",
+    "NumberOfPenalties",
+    "CurrentPeriodUsage",
+    "PriorPeriodUsage",
+    "ServiceRating",
+    "ServiceTickets",
+    "StartMonth",
+    "StartWeek",
+    "CustomerTenure",
+    "TotalCustomerSpend",
+    "UsageDifference",
+    "AdditionalSpendRatio",
+    "Penalties_per_Tenure",
+    "Tickets_per_Tenure"
+  ],
+  "decision_threshold": 0.3809723161404831,
+  "threshold_selection": "F1-maximizing threshold from training-only out-of-fold probabilities",
+  "classifier_class_weight": "balanced_subsample",
+  "model_selection_metric": "5-fold training CV F1; refit metric",
+  "test_evaluation": "Single final holdout evaluation after model and threshold selection",
+  "device_type_dash_handling": "Preserve literal '-' as its own category and handle missing values as 'Missing (null)' to match training representation"
+}

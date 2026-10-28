@@ -1,0 +1,42 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+.venv/
+.venv_clean/
+venv/
+ENV/
+env/
+
+# Streamlit secrets (NEVER commit secrets to repository)
+.streamlit/secrets.toml
+secrets.toml
+
+# Environment variables
+.env
+.env.*
+
+# Testing and coverage
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+*/.ipynb_checkpoints/
+
+# Operating system artifacts
+.DS_Store
+Thumbs.db
+
+# IDE settings
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Temporary backups & archives
+_archive/
+*.bak
