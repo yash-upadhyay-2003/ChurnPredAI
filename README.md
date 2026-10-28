@@ -7,7 +7,7 @@ A production-ready Customer Churn Prediction application featuring an end-to-end
 ## 1. Project Structure
 
 ```text
-DDFFFF/
+Churn prediction model ML/
 ├── api.py                                           # FastAPI backend application
 ├── streamlit_app.py                                 # Streamlit frontend user interface
 ├── requirements.txt                                 # Production dependency pins
