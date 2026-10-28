@@ -5,10 +5,19 @@ Reuses the saved Random Forest model bundle and deployment helper without retrai
 """
 
 import sys
+import logging
 from pathlib import Path
 from typing import List
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel, Field
+
+# Set up logging for API diagnostics and cloud monitoring
+logger = logging.getLogger("api")
+if not logger.handlers:
+    handler = logging.StreamHandler(sys.stdout)
+    handler.setFormatter(logging.Formatter("%(asctime)s [%(levelname)s] %(name)s: %(message)s"))
+    logger.addHandler(handler)
+    logger.setLevel(logging.INFO)
 
 # Ensure the saved_model directory is accessible for helper import
 BASE_DIR = Path(__file__).resolve().parent
@@ -30,7 +39,13 @@ app = FastAPI(
 # Load the model and metadata once at startup to keep requests fast and lightweight
 try:
     model, metadata = churn_deployment.load_bundle()
-except Exception:
+    logger.info(
+        "Successfully loaded model bundle and metadata (model: %s, threshold: %s)",
+        metadata.get("selected_model", "Unknown"),
+        metadata.get("decision_threshold")
+    )
+except Exception as err:
+    logger.error("Failed to load model bundle at startup: %s", err, exc_info=True)
     model, metadata = None, None
 
 
@@ -92,6 +107,7 @@ def get_root():
 def get_health():
     """Indicate whether the saved model and metadata bundle are loaded and ready."""
     if model is None or metadata is None:
+        logger.warning("Health check failed: model bundle is not loaded.")
         raise HTTPException(
             status_code=503,
             detail="Model bundle is not loaded or unavailable."
@@ -111,6 +127,7 @@ def predict_single(customer: CustomerInput):
     Reuses existing preprocessing, feature engineering, and decision threshold.
     """
     if model is None or metadata is None:
+        logger.error("Predict endpoint rejected request: model is unavailable.")
         raise HTTPException(
             status_code=503,
             detail="Model is currently unavailable."
@@ -129,8 +146,10 @@ def predict_single(customer: CustomerInput):
             "threshold_used": round(float(row["threshold_used"]), 4)
         }
     except ValueError as val_err:
+        logger.warning("Invalid input received in /predict: %s", val_err)
         raise HTTPException(status_code=400, detail=str(val_err))
-    except Exception:
+    except Exception as err:
+        logger.error("Unexpected error in /predict: %s", err, exc_info=True)
         raise HTTPException(
             status_code=500,
             detail="An error occurred while processing the prediction."
@@ -144,6 +163,7 @@ def predict_batch(customers: List[CustomerInput]):
     Returns list of prediction outputs with probabilities and class labels.
     """
     if model is None or metadata is None:
+        logger.error("Batch predict endpoint rejected request: model is unavailable.")
         raise HTTPException(
             status_code=503,
             detail="Model is currently unavailable."
@@ -173,8 +193,10 @@ def predict_batch(customers: List[CustomerInput]):
             "predictions": predictions
         }
     except ValueError as val_err:
+        logger.warning("Invalid input received in /predict/batch: %s", val_err)
         raise HTTPException(status_code=400, detail=str(val_err))
-    except Exception:
+    except Exception as err:
+        logger.error("Unexpected error in /predict/batch: %s", err, exc_info=True)
         raise HTTPException(
             status_code=500,
             detail="An error occurred while processing the batch predictions."
