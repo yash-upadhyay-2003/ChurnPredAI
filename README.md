@@ -129,7 +129,10 @@ The holdout evaluation results for the selected model are:
 | **Churn F1-score** | 75.6% |
 | **ROC-AUC** | 93.1% |
 
-These are the results documented for the selected model in the project. They should be interpreted as reported evaluation results, not as a guarantee of performance on new, real-world customers.
+These are the verified holdout evaluation results for the selected model on the test set.
+
+> **Evaluation & Threshold Resolution Note:**
+> The active model strictly excludes `HasRenewed` (a post-decision event) as a data-leakage precaution. The 14 raw predictors and training-CV optimized threshold (`0.3810`) yield the holdout metrics above. Earlier exploratory runs retaining `HasRenewed` showed higher metrics (F1 83.5%, ROC-AUC 95.6%, threshold ~0.5155), but that representation was deliberately superseded to ensure a realistic, deployment-safe model.
 
 ---
 
@@ -185,15 +188,15 @@ python -m pip install -r requirements.txt
 ```
 If dependency installation fails, review the error and confirm that the pinned `scikit-learn` and `joblib` versions are available for your Python environment.
 
-### Step 4: Run the smoke tests
+### Step 4: Run the automated tests
 From the repository root:
 ```bash
 python tests/test_smoke.py
 ```
-The test script checks model loading, metadata consistency, feature inputs, prediction outputs, threshold logic, and handling of missing required columns.
+The test suite checks model loading, metadata consistency, feature inputs, probability bounds, prediction outputs, threshold logic, missing column validation, and FastAPI endpoint contracts (including health, batch limits, and non-finite numeric rejection).
 A successful run ends with:
 ```text
-ALL SMOKE TESTS PASSED SUCCESSFULLY!
+ALL SMOKE TESTS AND API INTEGRATION TESTS PASSED SUCCESSFULLY!
 ```
 
 ### Step 5: Start the FastAPI backend
@@ -288,7 +291,8 @@ A successful request returns these fields:
 
 ### Batch Predictions
 Send a JSON array of customer objects to `POST /predict/batch`. Each object must contain the same required fields as a single-customer request.
-A successful response contains a count and a predictions array, with one prediction result per submitted customer.
+- **Maximum Batch Size:** 100 customer records per request (requests with > 100 records return HTTP 400).
+- A successful response contains `count` and a `predictions` array with one prediction result per submitted customer.
 
 ---
 
